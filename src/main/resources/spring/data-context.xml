@@ -44,7 +44,7 @@
     <beans profile="production">
     
     	<!-- FactoryBean that creates the EntityManagerFactory  -->
-		<bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+		<bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean" depends-on="flyway">
 			<property name="jpaVendorAdapter">
 				<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter"/>
 			</property>
@@ -62,7 +62,7 @@
 	
     	<context:property-placeholder ignore-unresolvable="true" location="/WEB-INF/datasource.properties" />
         <!-- Creates an in-memory database -->
-		<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close" depends-on="flyway">
+		<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
 			<property name="driverClassName" value="${datasource.driverClassName}" />
 			<property name="url" value="${datasource.url}" />
 			<property name="username" value="${datasource.username}" />
