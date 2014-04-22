@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/webflow 
+		http://www.springframework.org/schema/webflow/spring-webflow-2.4.xsd">
+ 
+ 
+  <!-- <secured attributes="ROLE_USER" /> -->
+  
+  
+ 	<var name="album" class="com.eugene.model.Album"/>
+
+ 
+	<view-state id="step1" view="addalbum.jsp" model="album">
+		<binder>
+			<binding property="title" />
+			<binding property="artist" />
+		</binder>
+		<transition on="next" to="step2"/> 
+		<transition on="cancel" to="cancel"/>
+		<!-- <transition on="finish" to="success">
+			<evaluate expression="albumService.createOrUpdateAlbum(album)" />
+		</transition>
+		 -->
+	</view-state>
+	
+	<subflow-state id="step2" subflow="createsong" > 
+		<input name="album" value="album"/>
+        <transition on="add" to="step2" />
+
+        <transition on="finish" to="success">
+		 	<evaluate expression="albumService.createOrUpdateAlbum(album)" />
+		</transition>
+        <transition on="cancel" to="cancel" />
+    </subflow-state>
+
+	<end-state id="success" view="externalRedirect:/"/>
+
+	<end-state id="cancel" view="externalRedirect:/"/>
+
+	
+</flow>

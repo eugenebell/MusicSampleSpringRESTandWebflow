@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/webflow 
+		http://www.springframework.org/schema/webflow/spring-webflow-2.4.xsd">
+
+
+	<!-- <secured attributes="ROLE_USER" /> -->
+
+
+	<!-- <var name="song" class="com.eugene.model.Song"/> -->
+
+	<input name="album" required="true" />
+
+	<view-state id="step2Add" view="addsong.jsp" model="flowScope.song">
+		<binder>
+			<binding property="name" />
+			<binding property="duration" />
+		</binder>
+		<on-entry>
+			<set name="flowScope.song" value="new com.eugene.model.Song()" />
+		</on-entry>
+		<transition on="add" to="step2Add">
+			<evaluate expression="album.addSong(flowScope.song)" />
+		</transition>
+		<transition on="finish" to="cancel">
+			<evaluate expression="albumService.createOrUpdateAlbum(album)" />
+		</transition>
+		<!-- <transition on="finish" to="success"> <evaluate expression="albumService.createOrUpdateAlbum(album)" 
+			/> </transition> -->
+		<transition on="cancel" to="cancel" />
+	</view-state>
+
+
+	<end-state id="success" view="externalRedirect:/" />
+
+	<end-state id="cancel" view="externalRedirect:/" />
+
+
+</flow>

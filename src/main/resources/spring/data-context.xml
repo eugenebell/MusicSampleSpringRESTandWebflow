@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-4.0.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd">
+
+
+
+	<!-- A transaction manager for working with JPA EntityManagerFactories -->
+	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory" ref="entityManagerFactory" />
+	</bean>
+	
+    <beans profile="dev">
+    	<!-- FactoryBean that creates the EntityManagerFactory  -->
+		<bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+			<property name="jpaVendorAdapter">
+				<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter"/>
+			</property>
+	    
+			<property name="jpaProperties">
+				<props>
+					<prop key="hibernate.show_sql">true</prop>
+					<prop key="hibernate.format_sql">true</prop>
+					<prop key="hibernate.dialect">org.hibernate.dialect.HSQLDialect</prop>
+				</props>
+			</property>
+			<property name="persistenceUnitName" value="music-unit" />
+			<property name="dataSource" ref="dataSource" />
+		</bean>
+	
+        <!-- Creates an in-memory database -->
+		<jdbc:embedded-database id="dataSource" type="HSQL">
+			<jdbc:script location="classpath:hsql-schema.sql" />
+			<jdbc:script location="classpath:test-setup-data.sql" />
+		</jdbc:embedded-database>
+    </beans>
+
+    <beans profile="production">
+    
+    	<!-- FactoryBean that creates the EntityManagerFactory  -->
+		<bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+			<property name="jpaVendorAdapter">
+				<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter"/>
+			</property>
+	    
+			<property name="jpaProperties">
+				<props>
+					<prop key="hibernate.show_sql">true</prop>
+					<prop key="hibernate.format_sql">true</prop>
+					<prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop>
+				</props>
+			</property>
+			<property name="persistenceUnitName" value="music-unit" />
+			<property name="dataSource" ref="dataSource" />
+		</bean>
+	
+    	<context:property-placeholder ignore-unresolvable="true" location="/WEB-INF/datasource.properties" />
+        <!-- Creates an in-memory database -->
+		<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close" depends-on="flyway">
+			<property name="driverClassName" value="${datasource.driverClassName}" />
+			<property name="url" value="${datasource.url}" />
+			<property name="username" value="${datasource.username}" />
+			<property name="password" value="${datasource.password}" />
+		</bean>
+		
+		<bean id="flyway" class="com.googlecode.flyway.core.Flyway" init-method="migrate">
+	        <property name="dataSource" ref="dataSource"/>
+	        <property name="locations" value="database-schema"/>
+	    </bean>
+    </beans>
+</beans>
