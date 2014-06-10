@@ -1,0 +1,10 @@
+--- 
+applications: 
+- name: MusicChallengeTwo
+  memory: 512M
+  instances: 1
+  host: music-${random-word}
+  domain: cfapps.io
+  path: target/MusicChallengeTwo-0.0.1-SNAPSHOT.war
+  services: 
+    - springmvc-hibernate-db
